@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>最优工资拆分</title>
+</head>
+<body>
+<div>
+    <table border="0">
+        <tr>
+            <td colspan="2" style="text-align: center">最优工资拆分</td>
+        </tr>
+        <tr>
+            <td style="text-align: right">年工资：</td>
+            <td><input id="sum" value="0"></td>
+        </tr>
+        <tr>
+            <td style="text-align: right">社保：</td>
+            <td><input id="sb" value="0"></td>
+        </tr>
+        <tr>
+            <td style="text-align: right">公积金：</td>
+            <td><input id="gjj" value="0"></td>
+        </tr>
+        <tr>
+            <td style="text-align: right">专项扣除：</td>
+            <td><input id="zxkc" value="0"></td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: center"><button onclick="process()">计算</button></td>
+        </tr>
+    </table>
+    <br>
+    <div id="content"></div>
+</div>
+</body>
+<script>
+
+    let sum = 0;
+    let sb = 0;
+    let gjj = 0;
+    let zxkc = 0;
+    
+    function process() {
+    	
+        document.getElementById("content").innerHTML = "计算中...";
+        setTimeout(function() {
+            cal();
+        }, 100);
+    }
+
+    function cal() {
+
+        sum = Number(document.getElementById('sum').value);
+        sb = Number(document.getElementById('sb').value);
+        gjj = Number(document.getElementById('gjj').value);
+        zxkc = Number(document.getElementById('zxkc').value);
+
+        const map = new Map();
+
+        for (let i = 0; i <= sum; i++) {
+            const t = f(i) + j(sum - i);
+            map.set(i, t);
+        }
+
+        let min = 99999999999;
+        let x = 0;
+        map.forEach(function (value, index) {
+            if (value < min) {
+                min = value;
+                x = index;
+            }
+        });
+
+        document.getElementById("content").innerHTML =
+            "最优组合<br>" +
+            "工资：" + x.toLocaleString() + "<br>" +
+            "奖金：" + (sum - x).toLocaleString() + "<br>" +
+            "税额：" + (f(x) + j(sum - x)).toLocaleString();
+    }
+
+    //个税计算
+    function f(x) {
+        const t = x - 60000 - sb - gjj - zxkc;
+        if (t <= 0) {
+            return 0;
+        }
+
+        if (t <= 36000) {
+            return t * 0.03;
+        } else if (t <= 144000) {
+            return t * 0.1 - 2520;
+        } else if (t <= 300000) {
+            return t * 0.2 - 16920;
+        } else if (t <= 420000) {
+            return t * 0.25 - 31920;
+        } else if (t <= 660000) {
+            return t * 0.3 - 52920;
+        } else if (t <= 960000) {
+            return t * 0.35 - 85920;
+        } else {
+            return t * 0.45 - 181920;
+        }
+    }
+
+    //奖金税计算
+    function j(x) {
+        const t = x / 12;
+
+        if (t <= 3000) {
+            return x * 0.03;
+        } else if (t <= 12000) {
+            return x * 0.1 - 210;
+        } else if (t <= 25000) {
+            return x * 0.2 - 1410;
+        } else if (t <= 35000) {
+            return x * 0.25 - 2660;
+        } else if (t <= 55000) {
+            return x * 0.3 - 4410;
+        } else if (t <= 80000) {
+            return x * 0.35 - 7160;
+        } else {
+            return x * 0.45 - 15160;
+        }
+    }
+</script>
+</html>
