@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,minimun-scale=1, user-scalable=no">
     <title>最优工资拆分</title>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1,minimun-scale=1, user-scalable=no">
+    <style>
+        table, table tr th, table tr td {
+            border: 1px solid black;
+        }
+
+        .table {
+            font-size: 15px;
+            border-collapse: collapse;
+        }
+    </style>
 </head>
 <body>
-<div>
-    <table border="0">
-        <tr>
-            <td colspan="2" style="text-align: center">最优工资拆分</td>
-        </tr>
+<div style="text-align: center;">
+    <table class="table" style="margin: 0 auto">
+        <thead>参数</thead>
         <tr>
             <td style="text-align: right">年工资：</td>
             <td><input id="sum" value="0"></td>
@@ -28,11 +37,51 @@
             <td><input id="zxkc" value="0"></td>
         </tr>
         <tr>
-            <td colspan="2" style="text-align: center"><button onclick="process()">计算</button></td>
+            <td colspan="2" style="text-align: center">
+                <button onclick="process()">计算</button>
+            </td>
         </tr>
     </table>
+
     <br>
-    <div id="content"></div>
+
+    <div id="content">&nbsp;</div>
+
+    <table class="table" style="margin: 0 auto">
+        <thead>最优工资拆分</thead>
+        <tr>
+            <td style="text-align: center" colspan="2">方案</td>
+            <td style="text-align: center;width: 60px;">金额</td>
+            <td style="text-align: center;width: 60px;">税率</td>
+            <td style="text-align: center;width: 60px;">税额</td>
+            <td style="text-align: center;width: 60px;">税合计</td>
+        </tr>
+        <tr style="background-color: aqua">
+            <td colspan="2">全工资</td>
+            <td style="text-align: right"><span id="qgz"></span></td>
+            <td style="text-align: right"><span id="qtaxr"></span></td>
+            <td style="text-align: right"><span id="qtax"></span></td>
+            <td style="text-align: right"><span id="qtaxs"></span></td>
+        </tr>
+        <tr style="background-color: blue">
+            <td rowspan="2">拆<br>分</td>
+            <td>工资</td>
+            <td style="text-align: right"><span id="bgz"></span></td>
+            <td style="text-align: right"><span id="bgztr"></span></td>
+            <td style="text-align: right"><span id="bgzt"></span></td>
+            <td rowspan="2" style="text-align: right"><span id="btaxs"></span></td>
+        </tr>
+        <tr style="background-color: blue">
+            <td>奖金</td>
+            <td style="text-align: right"><span id="bjj"></span></td>
+            <td style="text-align: right"><span id="bjjtr"></span></td>
+            <td style="text-align: right"><span id="bjjt"></span></td>
+        </tr>
+        <tr>
+            <td colspan="2">税差</td>
+            <td colspan="4" style="text-align: left"><span id="taxdiff"></span></td>
+        </tr>
+    </table>
 </div>
 </body>
 <script>
@@ -41,11 +90,11 @@
     let sb = 0;
     let gjj = 0;
     let zxkc = 0;
-    
+
     function process() {
-    	
+
         document.getElementById("content").innerHTML = "计算中...";
-        setTimeout(function() {
+        setTimeout(function () {
             cal();
         }, 100);
     }
@@ -73,11 +122,29 @@
             }
         });
 
-        document.getElementById("content").innerHTML =
-            "最优组合<br>" +
-            "工资：" + x.toLocaleString() + "<br>" +
-            "奖金：" + (sum - x).toLocaleString() + "<br>" +
-            "税额：" + (f(x) + j(sum - x)).toLocaleString();
+        document.getElementById("content").innerHTML = "&nbsp;";
+
+        const qtax = f(sum);
+        document.getElementById("qgz").innerHTML = sum.toLocaleString();
+        document.getElementById("qtaxr").innerHTML = getgzr(sum).toFixed(2).toLocaleString();
+        document.getElementById("qtax").innerHTML = qtax.toLocaleString();
+        document.getElementById("qtaxs").innerHTML = qtax.toLocaleString();
+
+
+        const bjj = sum - x;
+        const bgzt = f(x);
+        const bjjt = j(bjj);
+        document.getElementById("bgz").innerHTML = x.toLocaleString();
+        document.getElementById("bgztr").innerHTML = getjjr(x).toFixed(2).toLocaleString();
+        document.getElementById("bgzt").innerHTML = bgzt.toLocaleString();
+        document.getElementById("btaxs").innerHTML = (bgzt + bjjt).toLocaleString();
+
+        document.getElementById("bjj").innerHTML = bjj.toLocaleString();
+        document.getElementById("bjjtr").innerHTML = getjjr(bjj).toFixed(2).toLocaleString();
+        document.getElementById("bjjt").innerHTML = bjjt.toLocaleString();
+
+
+        document.getElementById("taxdiff").innerHTML = (qtax - bgzt - bjjt).toLocaleString();
     }
 
     //个税计算
@@ -122,6 +189,51 @@
             return x * 0.35 - 7160;
         } else {
             return x * 0.45 - 15160;
+        }
+    }
+
+    //获取工资税率
+    function getgzr(x) {
+        const t = x - 60000 - sb - gjj - zxkc;
+        if (t <= 0) {
+            return 0;
+        }
+
+        if (t <= 36000) {
+            return 0.03;
+        } else if (t <= 144000) {
+            return 0.1;
+        } else if (t <= 300000) {
+            return 0.2;
+        } else if (t <= 420000) {
+            return 0.25;
+        } else if (t <= 660000) {
+            return 0.3;
+        } else if (t <= 960000) {
+            return 0.35;
+        } else {
+            return 0.45;
+        }
+    }
+
+    //获取奖金税率
+    function getjjr(x) {
+        const t = x / 12;
+
+        if (t <= 3000) {
+            return 0.03;
+        } else if (t <= 12000) {
+            return 0.1;
+        } else if (t <= 25000) {
+            return 0.2;
+        } else if (t <= 35000) {
+            return 0.25;
+        } else if (t <= 55000) {
+            return 0.3;
+        } else if (t <= 80000) {
+            return 0.35;
+        } else {
+            return 0.45;
         }
     }
 </script>
