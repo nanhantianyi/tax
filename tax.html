@@ -38,7 +38,7 @@
         </tr>
         <tr>
             <td colspan="2" style="text-align: center">
-                <button onclick="process()">计算</button>
+                <button onclick="process()">计&nbsp;&nbsp;算</button>
             </td>
         </tr>
     </table>
@@ -106,21 +106,16 @@
         gjj = Number(document.getElementById('gjj').value);
         zxkc = Number(document.getElementById('zxkc').value);
 
-        const map = new Map();
+        let min = 99999999999;
+        let x = 0;
 
         for (let i = 0; i <= sum; i++) {
             const t = f(i) + j(sum - i);
-            map.set(i, t);
-        }
-
-        let min = 99999999999;
-        let x = 0;
-        map.forEach(function (value, index) {
-            if (value < min) {
-                min = value;
-                x = index;
+            if (t < min) {
+                min = t;
+                x = i;
             }
-        });
+        }
 
         document.getElementById("content").innerHTML = "&nbsp;";
 
